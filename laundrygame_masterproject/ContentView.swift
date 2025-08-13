@@ -6,21 +6,41 @@
 //
 
 import SwiftUI
-import RealityKit
-import RealityKitContent
 
 struct ContentView: View {
+    @State private var game = GameState()
 
     var body: some View {
-        VStack {
-            Model3D(named: "Scene", bundle: realityKitContentBundle)
-                .padding(.bottom, 50)
+        ZStack {
+            switch game.phase {
+            case .menu:
+                MainMenuView()
+                    .environment(game)
 
-            Text("Hello, world!")
+            case .playing:
+                GameView()
+                    .environment(game)
 
-            ToggleImmersiveSpaceButton()
+            case .paused:
+                GameView()
+                    .environment(game)
+
+            case .results:
+                resultsLayer
+            }
+
+            // Optional immersive toggle lives in top-right for convenience
+            VStack { HStack { Spacer(); ToggleImmersiveSpaceButton() }; Spacer() }
+                .padding()
         }
-        .padding()
+    }
+
+    private var resultsLayer: some View {
+        ZStack {
+            GameView().blur(radius: 8).environment(game)
+            ResultsView().environment(game)
+        }
+        .transition(.opacity)
     }
 }
 
